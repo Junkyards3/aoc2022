@@ -3,9 +3,11 @@ use std::io;
 use std::time::Instant;
 
 use crate::day1::day1;
-use crate::TimeUnit::Nanoseconds;
+use crate::day2::day2;
+use crate::TimeUnit::Microseconds;
 
 mod day1;
+mod day2;
 
 enum TimeUnit {
     Seconds,
@@ -47,7 +49,8 @@ fn main() {
 
     let guess_n = guess.trim().parse::<usize>().expect("Invalid number day !");
     match guess_n {
-        1 => {time_function(day1,Nanoseconds)}
+        1 => {time_function(day1,Microseconds)}
+        2 => {time_function(day2,Microseconds)}
         _ => {println!("No day corresponding to this number")}
     }
 }
