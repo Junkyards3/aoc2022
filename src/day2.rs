@@ -142,5 +142,5 @@ pub fn day2() {
         .split('\n')
         .map(| str_round| MoveOutcome::from_str(str_round).expect("failed to parse").score_total())
         .sum();
-    println!("Solution 1 : {:?}",total_score2);
+    println!("Solution 2 : {:?}",total_score2);
 }

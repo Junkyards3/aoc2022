@@ -4,10 +4,12 @@ use std::time::Instant;
 
 use crate::day1::day1;
 use crate::day2::day2;
+use crate::day3::day3;
 use crate::TimeUnit::Microseconds;
 
 mod day1;
 mod day2;
+mod day3;
 
 enum TimeUnit {
     Seconds,
@@ -51,6 +53,7 @@ fn main() {
     match guess_n {
         1 => {time_function(day1,Microseconds)}
         2 => {time_function(day2,Microseconds)}
+        3 => {time_function(day3,Microseconds)}
         _ => {println!("No day corresponding to this number")}
     }
 }
