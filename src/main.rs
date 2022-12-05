@@ -53,7 +53,7 @@ fn main() {
         .read_line(&mut guess)
         .expect("Failed to read line");
 
-    let guess_n = guess.trim().parse::<usize>().expect("Invalid number day !");
+    let guess_n = guess.trim().parse::<usize>().expect("Invalid number day ! ");
     match guess_n {
         1 => {time_function(day1,Microseconds)}
         2 => {time_function(day2,Microseconds)}
