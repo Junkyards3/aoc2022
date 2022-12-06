@@ -89,7 +89,7 @@ pub fn day5() {
     let mut data_splited = data.split("\n\n");
     let mut cargo9000 = Cargo::from_str(data_splited.next().unwrap()).unwrap();
     let mut cargo9001 = cargo9000.clone();
-    let moves = data_splited.next().unwrap()
+    data_splited.next().unwrap()
         .split('\n')
         .map(|s| Move::from_str(s).unwrap())
         .for_each(|m| {
