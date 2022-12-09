@@ -2,11 +2,10 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io::Read;
 use std::str::FromStr;
-use ego_tree::{NodeId, NodeMut, NodeRef, Tree};
+use ego_tree::{NodeId, Tree};
 
 #[derive(Debug, Clone)]
 struct FileP {
-    name: String,
     size: i64,
 }
 
@@ -19,7 +18,6 @@ enum Subfolfile {
 #[derive(Debug)]
 struct DirectoryData {
     name: String,
-    total_size: Option<i64>,
     sub_files: Vec<FileP>,
 }
 
@@ -45,7 +43,7 @@ fn parse_command(cmd: &str) -> Command {
         Command::Ls(it_lines.map(|f_str| {
             let file_line: Vec<&str> = f_str.split(' ').collect();
             if let Ok(size) = i64::from_str(file_line[0])  {
-                Subfolfile::File(FileP { name: file_line[1].to_string(), size  })
+                Subfolfile::File(FileP { size })
             }
             else {
                 Subfolfile::Folder(file_line[1].to_string())
@@ -63,7 +61,7 @@ fn apply_command(tree: &mut Tree<DirectoryData>, curr_pos: &mut NodeId, cmd: Com
             match sub {
                 Subfolfile::File(file_p) => {tree.get_mut(*curr_pos).unwrap().value().sub_files.push(file_p.clone());}
                 Subfolfile::Folder(s) => {tree.get_mut(*curr_pos).unwrap().append(DirectoryData
-                { name: s.to_string(), total_size: None, sub_files: vec![] });}
+                { name: s.to_string(), sub_files: vec![] });}
             }
         })}
     }
@@ -86,7 +84,7 @@ pub fn day7() {
     let mut data = String::new();
     file.read_to_string(&mut data)
         .expect("Error while reading file");
-    let mut directory_tree = Tree::new(DirectoryData { name: String::from("/"), total_size: None, sub_files: vec![] });
+    let mut directory_tree = Tree::new(DirectoryData { name: String::from("/"), sub_files: vec![] });
     let mut curr_pos = directory_tree.root().id();
     data.split('$')
         .filter(|s| !s.is_empty())
