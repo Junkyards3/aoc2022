@@ -1,136 +1,85 @@
+use std::cmp::max;
 use std::collections::HashSet;
 use std::fs::File;
 use std::io::Read;
-use itertools::Itertools;
-use ndarray::{Array2, Axis, Dimension};
 
-#[derive(Debug)]
-enum Relative { N, NE, E, SE, S, SW, W, NW, O }
-
-impl Relative {
-    fn displacement(&self) -> (i32, i32) {
-        match self {
-            Relative::N => (0, 1),
-            Relative::NE => (1, 1),
-            Relative::E => (1, 0),
-            Relative::SE => (1, -1),
-            Relative::S => (0, -1),
-            Relative::SW => (-1, -1),
-            Relative::W => (-1, 0),
-            Relative::NW => (-1, 1),
-            Relative::O => (0, 0)
-        }
-    }
-
-    fn relative_after_move(&self, movet: &Move) -> Self {
-        match (&self, move_head) {
-            (Relative::N, Move::N) | (Relative::E, Move::E) |
-            (Relative::S, Move::S) | (Relative::W, Move::W) => Relative::O,
-            (Relative::N, Move::E) | (Relative::W, Move::S) => Relative::NW,
-            (Relative::N, Move::S) | (Relative::NE, Move::E) | (Relative::NW, Move::S) |
-            (Relative::NE, Move::S) | (Relative::NW, Move::W) | (Relative::O, Move::S) => Relative::N,
-            (Relative::N, Move::W) | (Relative::E, Move::S) => Relative::NE,
-            (Relative::NE, Move::N) | (Relative::NE, Move::W) | (Relative::E, Move::W) |
-            (Relative::SE, Move::S) | (Relative::SE, Move::W) | (Relative::O, Move::W) => Relative::E,
-            (Relative::E, Move::N) | (Relative::S, Move::W) => Relative::SE,
-            (Relative::SE, Move::N) | (Relative::SE, Move::E) | (Relative::S, Move::N) |
-            (Relative::SW, Move::N) | (Relative::SW, Move::W) | (Relative::O, Move::N) => Relative::S,
-            (Relative::S, Move::E) | (Relative::W, Move::N) => Relative::SW,
-            (Relative::SW, Move::E) | (Relative::SW, Move::S) | (Relative::W, Move::E) |
-            (Relative::NW, Move::N) | (Relative::NW, Move::E) | (Relative::O, Move::E) => Relative::W,
-        }
-    }
-
-    fn compute_position(&self, x: i32, y: i32) -> (i32,i32) {
-        let displacement = self.displacement();
-        (x + displacement.0, y + displacement.1)
-    }
-}
-
-#[derive(Debug)]
-enum Move { N, E, S, W }
-
-impl Move {
-    fn to_relative(&self) -> Relative {
-        match self {
-            Move::N => Relative::N,
-            Move::E => Relative::E,
-            Move::S => Relative::S,
-            Move::W => Relative::W,
-        }
-    }
-}
-
-#[derive(Debug)]
+#[derive(Debug, Default)]
 struct Head {
     pos_x: i32,
     pos_y: i32,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default, Clone)]
 struct Tail {
-    relative: Relative,
+    pos_x: i32,
+    pos_y: i32,
 }
 
-impl Default for Tail {
-    fn default() -> Self {
-        Tail { relative: Relative::O }
+fn d_inf(p1: (i32,i32), p2: (i32,i32)) -> i32 {
+    max((p1.0 - p2.0).abs(),(p1.1 - p2.1).abs())
+}
+impl Tail {
+    fn closest_between(&self, p1: (i32,i32), p2: (i32,i32)) -> (i32,i32) {
+        let d1 = d_inf((self.pos_x,self.pos_y),p1);
+        let d2 = d_inf((self.pos_x,self.pos_y),p2);
+        if d1 < d2 {
+            p1
+        }
+        else {
+            p2
+        }
+    }
+    fn move_from_followed_move(&mut self, movem: (i32,i32), followed_pos: (i32,i32)) {
+        let (dx,dy) = movem;
+        let (xn,yn) = followed_pos;
+        let (x0,y0) = (xn - dx,yn - dy);
+        if dx == 0 || dy == 0 {
+            if (xn - self.pos_x).abs() == 2 || (yn - self.pos_y).abs() == 2{
+                (self.pos_x, self.pos_y) = (x0,y0)
+            }
+        }
+        else{
+            let anti_diag = (x0 - dx, y0 - dy);
+            if d_inf((self.pos_x,self.pos_y),followed_pos) <= 1 {
+
+            }
+            else if (self.pos_x, self.pos_y) == anti_diag {
+                (self.pos_x, self.pos_y) = (x0,y0)
+            }
+            else {
+                (self.pos_x, self.pos_y) = self.closest_between((x0, y0 + dy),(x0 + dx, y0));
+            }
+        }
     }
 }
-
-#[derive(Debug)]
-struct System {
-    head: Head,
-    tail: Tail,
-    visited_tail_pos: HashSet<(i32, i32)>,
-}
-
 struct SystemMultipleTails {
     head: Head,
     tails: Vec<Tail>,
     visited_last_tail_pos: HashSet<(i32,i32)>
 }
 
-impl System {
-    fn compute_tail_position(&self) -> (i32, i32) {
-        let displacement = self.tail.relative.displacement();
-        (self.head.pos_x + displacement.0, self.head.pos_y + displacement.1)
-    }
-
-    fn move_head(&mut self, move_head: &Move) {
-        let displacement = move_head.to_relative().displacement();
-        self.head.pos_x += displacement.0;
-        self.head.pos_y += displacement.1;
-        self.tail.relative = self.tail.relative.relative_after_move(move_head);
-        self.visited_tail_pos.insert(self.compute_tail_position());
-    }
-}
-
 impl SystemMultipleTails{
-    fn compute_tails_pos(&mut self) -> Vec<(i32,i32)> {
-        let mut curr_pos = (self.head.pos_x, self.head.pos_y);
-        let mut retour = vec![];
-        for tail in self.tails {
-            curr_pos = tail.relative.compute_position(curr_pos.0,curr_pos.1);
-            retour.push(curr_pos);
+    fn new(nb_tails: usize) -> Self {
+        SystemMultipleTails {
+            head: Default::default(),
+            tails: vec![Default::default();nb_tails],
+            visited_last_tail_pos: HashSet::new(),
         }
-        retour
     }
-    fn move_head(&mut self, move_head: &Move) {
-        let old_pos = self.compute_tails_pos();
-        let displacement = move_head.to_relative().displacement();
-        self.head.pos_x += displacement.0;
-        self.head.pos_y += displacement.1;
+
+    fn move_head(&mut self, move_head: (i32,i32)) {
+        self.head.pos_x += move_head.0;
+        self.head.pos_y += move_head.1;
         let mut curr_pos = (self.head.pos_x, self.head.pos_y);
-        let mut movet =  move_head;
-        for i in 0..self.tails.len() {
-            let mut tail = &self.tails[i];
-            let new_relative = tail.relative.relative_after_move(movet);
-            //calculer le move de la tail en cours
-            curr_pos = new_relative.compute_position(curr_pos.0,curr_pos.1);
-            self.tails[i] = Tail { relative: new_relative };
+        let mut movet = move_head;
+        for t in self.tails.iter_mut(){
+            let (xb,yb) = (t.pos_x,t.pos_y);
+            t.move_from_followed_move(movet,curr_pos);
+            movet = (t.pos_x - xb, t.pos_y - yb);
+            curr_pos = (t.pos_x,t.pos_y);
         }
-        self.visited_last_tail_pos.insert(self.compute_tail_position());
+        let last_tail = self.tails.last().unwrap();
+        self.visited_last_tail_pos.insert((last_tail.pos_x,last_tail.pos_y));
     }
 }
 pub fn day9() {
@@ -139,25 +88,28 @@ pub fn day9() {
     file.read_to_string(&mut data)
         .expect("Error while reading file");
 
-    let mut system = System {
-        head: Head { pos_x: 0, pos_y: 0 },
-        tail: Tail { relative: Relative::O },
-        visited_tail_pos: HashSet::new(),
-    };
-    data.split('\n')
-        .for_each(|s| {
-            let mut i = s.split_whitespace();
-            let movet = match i.next().unwrap() {
-                "R" => Move::E,
-                "U" => Move::N,
-                "L" => Move::W,
-                "D" => Move::S,
-                _ => panic!(),
+    let inst: Vec<(i32,i32)> = data.split('\n')
+        .map(|s| {
+            let mut it = s.split_whitespace();
+            let displacement = match it.next().unwrap() {
+                "R" => (1,0),
+                "U" => (0,1),
+                "L" => (-1,0),
+                "D" => (0,-1),
+                _ => panic!()
             };
-            let nb_move = i.next().unwrap().parse::<u32>().unwrap();
-            for k in 0..nb_move {
-                system.move_head(&movet);
-            }
+            let n: usize = it.next().unwrap().parse().unwrap();
+            vec![displacement; n]
+        })
+        .reduce(|accum, item| [accum,item].concat())
+        .unwrap();
+    let mut system1 = SystemMultipleTails::new(1);
+    let mut system10 = SystemMultipleTails::new(9);
+    inst.iter()
+        .for_each(|movet| {
+            system1.move_head(*movet);
+            system10.move_head(*movet);
         });
-    println!("Solution 1 : {:?}", system.visited_tail_pos.len())
+    println!("Solution 1 : {:?}", system1.visited_last_tail_pos.len());
+    println!("Solution 2 : {:?}", system10.visited_last_tail_pos.len());
 }
