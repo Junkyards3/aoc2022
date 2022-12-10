@@ -41,15 +41,15 @@ impl Instruction {
 
 }
 
-struct CPU {
+struct Cpu {
     nb_cycles: usize,
     instr_stack : Vec<Instruction>,
     value_x : i32,
 }
 
-impl CPU {
+impl Cpu {
     fn new(instrs: impl Iterator<Item = Instruction>) -> Self {
-        CPU {
+        Cpu {
             nb_cycles: 1,
             instr_stack: instrs.collect(),
             value_x: 1,
@@ -96,7 +96,7 @@ pub fn day10() {
                 Instruction::new_addx(it.next().unwrap().parse::<i32>().unwrap())
             }
         });
-    let mut cpu = CPU::new(iter.rev());
+    let mut cpu = Cpu::new(iter.rev());
     let cycles: Vec<usize> = vec![20,60,100,140,180,220];
     let mut result1: i32 = 0;
     let mut result2 = String::from("");
