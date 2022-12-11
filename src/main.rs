@@ -2,6 +2,7 @@ use std::fmt::{Display, Formatter};
 use std::io;
 use std::time::Instant;
 use crate::day10::day10;
+use crate::day11::day11;
 
 use crate::day1::day1;
 use crate::day2::day2;
@@ -24,6 +25,7 @@ mod day7;
 mod day8;
 mod day9;
 mod day10;
+mod day11;
 
 enum TimeUnit {
     Seconds,
@@ -75,6 +77,7 @@ fn main() {
         8 => {time_function(day8,Microseconds)}
         9 => {time_function(day9,Microseconds)}
         10 => {time_function(day10,Microseconds)}
+        11 => {time_function(day11,Microseconds)}
         _ => {println!("No day corresponding to this number")}
     }
 }
