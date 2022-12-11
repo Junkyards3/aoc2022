@@ -101,13 +101,13 @@ pub fn day10() {
     let mut result1: i32 = 0;
     let mut result2 = String::from("");
     match cpu.is_sprite_visible() {
-        true => result2.push('#'),
-        false => result2.push('.')
+        true => result2.push('█'),
+        false => result2.push(' ')
     }
     while cpu.execute_cycle().is_none() {
         match cpu.is_sprite_visible() {
-            true => result2.push('#'),
-            false => result2.push('.')
+            true => result2.push('█'),
+            false => result2.push(' ')
         }
         if cpu.nb_cycles % 40 == 0 {
             result2.push('\n');
