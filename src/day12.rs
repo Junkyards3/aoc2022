@@ -1,12 +1,13 @@
 use std::fs::File;
 use std::io::Read;
 use ndarray::{Array2, Axis, Dimension};
+use pathfinding::prelude::dijkstra;
 
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 struct Pos(i32,i32);
 
 impl Pos {
-    fn neighbors(&self, grid: Array2<char>) -> Vec<(Pos, usize)> {
+    fn neighbors(&self, grid: &Array2<char>) -> Vec<(Pos, usize)> {
         let &Pos(x,y) = self;
         let (height,width) = grid.raw_dim().into_pattern();
         let own_elevation = convert_to_elevation(grid[[x as usize,y as usize]]);
@@ -28,7 +29,7 @@ fn convert_to_elevation(c : char) -> u32 {
     }
 }
 pub fn day12() {
-    let mut file = File::open("./inputs/input_day12t.txt").expect("File not found");
+    let mut file = File::open("./inputs/input_day12.txt").expect("File not found");
     let mut data = String::new();
     file.read_to_string(&mut data)
         .expect("Error while reading file");
@@ -47,5 +48,19 @@ pub fn day12() {
 
     let end = array.indexed_iter().find(|((_x,_y),c)| **c == 'E').unwrap();
     let end: Pos = Pos(end.0.0 as i32, end.0.1 as i32);
-    println!("{:?}",end)
+
+    let path = dijkstra(&start, |p| p.neighbors(&array), |p| *p == end).unwrap();
+    println!("Solution 1 : {:?}",path.0.len() - 1);
+
+    let min_length = array.indexed_iter()
+        .filter(|((_x,_y),c)| convert_to_elevation(**c) == 0)
+        .filter_map(|((x,y),_)| {
+            dijkstra(&Pos(x as i32,y as i32), |p| p.neighbors(&array), |p| *p == end)
+                .map(|v| v.0.len())
+        })
+        .min().unwrap() - 1;
+
+
+    println!("Solution 2 : {:?}",min_length);
+
 }

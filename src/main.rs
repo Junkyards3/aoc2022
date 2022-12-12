@@ -60,8 +60,7 @@ fn time_function(f : fn() -> (), unit: TimeUnit) {
     println!("It took {} {} to run the function !", elapsed_time_unit,unit)
 }
 fn main() {
-    day12();
-    /*println!("Choose your day !");
+    println!("Choose your day !");
     let mut guess = String::new();
 
     io::stdin()
@@ -81,6 +80,7 @@ fn main() {
         9 => {time_function(day9,Microseconds)}
         10 => {time_function(day10,Microseconds)}
         11 => {time_function(day11,Microseconds)}
+        12 => {time_function(day12,Microseconds)}
         _ => {println!("No day corresponding to this number")}
-    }*/
+    }
 }
