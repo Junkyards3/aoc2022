@@ -5,6 +5,7 @@ use crate::day10::day10;
 use crate::day11::day11;
 use crate::day12::day12;
 use crate::day13::day13;
+use crate::day14::day14;
 
 use crate::day1::day1;
 use crate::day2::day2;
@@ -30,6 +31,7 @@ mod day10;
 mod day11;
 mod day12;
 mod day13;
+mod day14;
 
 enum TimeUnit {
     Seconds,
@@ -84,6 +86,7 @@ fn main() {
         11 => {time_function(day11,Microseconds)}
         12 => {time_function(day12,Microseconds)}
         13 => {time_function(day13,Microseconds)}
+        14 => {time_function(day14,Microseconds)}
         _ => {println!("No day corresponding to this number")}
     }
 }
