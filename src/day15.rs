@@ -4,8 +4,8 @@ use std::io::Read;
 use interval::interval_set::ToIntervalSet;
 use interval::IntervalSet;
 use gcollections::ops::*;
-use good_lp::{default_solver, SolverModel, variables};
-use itertools::Itertools;
+use geo::{BooleanOps, CoordsIter};
+use geo_types::{coord, LineString, MultiPolygon, Polygon, Rect};
 
 fn distance(p1: (i32,i32), p2: (i32,i32)) -> i32 {
     (p1.0 - p2.0).abs() + (p1.1 - p2.1).abs()
@@ -72,16 +72,32 @@ pub fn day15() {
 
     println!("Solution 1 : {:?}", sol1);
 
-    variables! {
-        vars:
-            0 <= x <= max_coord;
-            0 <= y <= max_coord;
-    };
-    let mut problem = vars.minimise(x)
-        .using(default_solver);
-    data.lines()
-        .map(|l| parse(l).0)
-        .for_each()
-    problem.add_constraint()
+    let mut possible_beacon_zone = MultiPolygon::new(vec![Rect::new(
+        coord! { x: 0., y: 0. },
+        coord! { x: max_coord as f32, y: max_coord as f32}
+    ).to_polygon()]);
 
+    let fig = data.lines()
+        .map(|l| {
+            let sensor = parse(l).0;
+            let sx = sensor.pos_x as f32;
+            let sy = sensor.pos_y as f32;
+            let sr = sensor.range_no_beacon as f32 + 0.5;
+            let v: Vec<(f32,f32)> = vec![(sx - sr,sy), (sx,sy - sr), (sx + sr,sy), (sx,sy + sr), (sx - sr, sy)];
+            MultiPolygon::new(vec![Polygon::new(
+                LineString::from(v),
+                vec![])])
+        });
+    for mp in fig {
+        possible_beacon_zone = possible_beacon_zone.difference(&mp);
+    }
+
+    let (ix,iy): (Vec<f32>,Vec<f32>) = possible_beacon_zone.0[0]
+        .coords_iter()
+        .map(|g| g.x_y())
+        .unzip();
+    let x_dis = *ix.iter().find(|x| x.fract() < 0.1).unwrap() as u64;
+    let y_dis = *iy.iter().find(|y| y.fract() < 0.1).unwrap() as u64;
+
+    println!("Solution 2 : {:?}", x_dis * max_coord + y_dis);
 }
