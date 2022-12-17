@@ -8,6 +8,7 @@ use crate::day13::day13;
 use crate::day14::day14;
 use crate::day15::day15;
 use crate::day16::day16;
+use crate::day17::day17;
 
 use crate::day1::day1;
 use crate::day2::day2;
@@ -36,6 +37,7 @@ mod day13;
 mod day14;
 mod day15;
 mod day16;
+mod day17;
 
 enum TimeUnit {
     Seconds,
@@ -68,7 +70,7 @@ fn time_function(f : fn() -> (), unit: TimeUnit) {
     println!("It took {} {} to run the function !", elapsed_time_unit,unit)
 }
 fn main() {
-    println!("Choose your day !");
+println!("Choose your day !");
     let mut guess = String::new();
 
     io::stdin()
@@ -93,6 +95,7 @@ fn main() {
         14 => {time_function(day14,Microseconds)}
         15 => {time_function(day15,Microseconds)}
         16 => {time_function(day16,Microseconds)}
+        17 => {time_function(day17,Microseconds)}
         _ => {println!("No day corresponding to this number")}
     }
 }
