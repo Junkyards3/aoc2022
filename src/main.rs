@@ -9,6 +9,7 @@ use crate::day15::day15;
 use crate::day16::day16;
 use crate::day17::day17;
 use crate::day18::day18;
+use crate::day19::day19;
 
 use crate::day1::day1;
 use crate::day2::day2;
@@ -38,6 +39,7 @@ mod day15;
 mod day16;
 mod day17;
 mod day18;
+mod day19;
 
 fn time_function(f : fn() -> ()) {
     let now = Instant::now();
@@ -75,6 +77,7 @@ fn main() {
         16 => {time_function(day16)}
         17 => {time_function(day17)}
         18 => {time_function(day18)}
+        19 => {time_function(day19)}
         _ => {println!("No day corresponding to this number")}
     }
 }
