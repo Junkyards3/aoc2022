@@ -14,6 +14,7 @@ use crate::day19::day19;
 use crate::day1::day1;
 use crate::day20::day20;
 use crate::day21::day21;
+use crate::day22::day22;
 use crate::day2::day2;
 use crate::day3::day3;
 use crate::day4::day4;
@@ -44,6 +45,7 @@ mod day18;
 mod day19;
 mod day20;
 mod day21;
+mod day22;
 
 fn time_function(f : fn() -> ()) {
     let now = Instant::now();
@@ -54,7 +56,7 @@ fn time_function(f : fn() -> ()) {
 }
 
 fn main() {
-    println!("Choose your day !");
+println!("Choose your day !");
     let mut day_choice = String::new();
 
     io::stdin()
@@ -84,6 +86,7 @@ fn main() {
         19 => {time_function(day19)}
         20 => {time_function(day20)}
         21 => {time_function(day21)}
+        22 => {time_function(day22)}
         _ => {println!("No day corresponding to this number")}
     }
 }
