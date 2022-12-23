@@ -1,8 +1,6 @@
-use std::cmp::max;
 use std::collections::{HashMap, HashSet};
 use std::fs::File;
 use std::io::Read;
-use geo::Orientation;
 use itertools::Itertools;
 
 #[derive(Copy, Clone, Debug)]
@@ -142,8 +140,8 @@ impl Board {
                     };
                 }));
         let x = map.iter()
-            .filter(|((x,y),tile)| *y == 1 && **tile == Tile::Open)
-            .map(|((x,y),_)| *x)
+            .filter(|((_,y),tile)| *y == 1 && **tile == Tile::Open)
+            .map(|((x,_),_)| *x)
             .min()
             .unwrap();
         let mut b = Board {
@@ -162,8 +160,8 @@ impl Board {
         self.y = 1;
         self.facing = Facing::Right;
         self.x = self.map.iter()
-            .filter(|((x,y),tile)| *y == 1 && **tile == Tile::Open)
-            .map(|((x,y),_)| *x)
+            .filter(|((_,y),tile)| *y == 1 && **tile == Tile::Open)
+            .map(|((x,_),_)| *x)
             .min()
             .unwrap();
     }
@@ -184,32 +182,32 @@ impl Board {
         match (dx,dy) {
             (1,0) => {
                 let new_x = self.map.keys()
-                    .filter(|(u,v)| *v == self.y)
-                    .map(|(u,v)| *u)
+                    .filter(|(_,v)| *v == self.y)
+                    .map(|(u,_)| *u)
                     .min()
                     .unwrap();
                 (new_x,self.y,self.facing)
             }
             (-1,0) => {
                 let new_x = self.map.keys()
-                    .filter(|(u,v)| *v == self.y)
-                    .map(|(u,v)| *u)
+                    .filter(|(_,v)| *v == self.y)
+                    .map(|(u,_)| *u)
                     .max()
                     .unwrap();
                 (new_x,self.y,self.facing)
             }
             (0,1) => {
                 let new_y = self.map.keys()
-                    .filter(|(u,v)| *u == self.x)
-                    .map(|(u,v)| *v)
+                    .filter(|(u,_)| *u == self.x)
+                    .map(|(_,v)| *v)
                     .min()
                     .unwrap();
                 (self.x,new_y,self.facing)
             }
             (0,-1) => {
                 let new_y = self.map.keys()
-                    .filter(|(u,v)| *u == self.x)
-                    .map(|(u,v)| *v)
+                    .filter(|(u,_)| *u == self.x)
+                    .map(|(_,v)| *v)
                     .max()
                     .unwrap();
                 (self.x,new_y,self.facing)
