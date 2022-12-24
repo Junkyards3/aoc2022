@@ -130,7 +130,7 @@ impl Elves {
             }
         }
         self.elves = new_elves;
-        self.direction_start = (self.direction_start + 1);
+        self.direction_start += 1;
         has_moved
     }
 
@@ -149,40 +149,6 @@ impl Elves {
             west = west.min(u);
         }
         (north - south + 1) * (east - west + 1) - (self.elves.len() as i32)
-    }
-
-    fn draw(&self) {
-        let any_elf = self.elves.iter().next().unwrap();
-        let (x,y) = (any_elf.x,any_elf.y);
-        let mut north = y;
-        let mut south = y;
-        let mut east = x;
-        let mut west = x;
-        for elf in self.elves.iter() {
-            let (u,v) = (elf.x,elf.y);
-            north = north.max(v);
-            south = south.min(v);
-            east = east.max(u);
-            west = west.min(u);
-        }
-        for j in south..=north {
-            let mut s = String::new();
-            for i in west..=east {
-                let to_push = match self.is_occupied(i,north - j + south) {
-                    true => '#',
-                    false => '.'
-                };
-                s.push(to_push);
-            }
-            s.push(' ');
-            s.push_str(&j.to_string());
-            if j == north {
-                s.push('\n');
-                s.push_str(&west.to_string());
-            }
-            println!("{s}");
-        }
-        println!();
     }
 }
 
